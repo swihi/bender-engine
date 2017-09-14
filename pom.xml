@@ -79,4 +79,5 @@
 			<url>https://nexus.zajezdy.cz/repository/maven-snapshots/</url>
 		</snapshotRepository>
 	</distributionManagement>
+	
 </project>
