@@ -7,8 +7,8 @@
 	<version>0.2.0</version>
 	<packaging>jar</packaging>
 	
-	<name>jsre</name>
-	<description>JSRE is a java rule engine, that uses JSON and JavaScript ot express the rules in a configuration file.</description>
+	<name>bender-engine</name>
+	<description>bender-engine is forked from JSRE and it's a java rule engine, that uses JSON and JavaScript ot express the rules in a configuration file.</description>
 	<url>http://jsre.rocks</url>
 
 	<licenses>
@@ -79,5 +79,5 @@
 			<url>https://nexus.zajezdy.cz/repository/maven-snapshots/</url>
 		</snapshotRepository>
 	</distributionManagement>
-	
+
 </project>
