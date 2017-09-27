@@ -7,6 +7,7 @@ import java.util.Map;
 import javax.script.CompiledScript;
 import javax.script.ScriptException;
 
+import com.google.common.base.Strings;
 import org.apache.commons.lang3.StringUtils;
 
 import com.google.gson.Gson;
@@ -424,6 +425,8 @@ public abstract class AbstractRuleEngine implements RuleEngine {
 
 		for (Rule r : rules) {
 			String expression = r.getExpression();
+			if (Strings.isNullOrEmpty(expression)) expression = "true";
+
 			script += "if (" + expression + ") { \n";
 			List<String> scriptActions = r.getScriptActions();
 			if (scriptActions != null) {
