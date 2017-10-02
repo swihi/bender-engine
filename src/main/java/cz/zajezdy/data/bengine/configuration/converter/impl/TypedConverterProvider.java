@@ -18,8 +18,8 @@ import cz.zajezdy.data.bengine.configuration.impl.BasicConfiguration;
 
 public class TypedConverterProvider<TDoc extends Document> implements JsonConverterProvider {
 
-	Type configurationType = null;
-	Type documentType = null;
+	private Type configurationType = null;
+	private Type documentType = null;
 
 	public void setConfigurationType(Type configurationType) {
 		this.configurationType = configurationType;
@@ -41,7 +41,7 @@ public class TypedConverterProvider<TDoc extends Document> implements JsonConver
 		throw new RuntimeException("unsupported type for json converion");
 	}
 
-	private JsonConverter<BasicConfiguration<TDoc>> getConfigurationJsonConverter() {
+	public JsonConverter<BasicConfiguration<TDoc>> getConfigurationJsonConverter() {
 		return new JsonConverter<BasicConfiguration<TDoc>>() {
 
 			private String jsonDocument;
@@ -67,7 +67,7 @@ public class TypedConverterProvider<TDoc extends Document> implements JsonConver
 		};
 	}
 
-	private JsonConverter<TDoc> getDocumentJsonConverter() {
+	public JsonConverter<TDoc> getDocumentJsonConverter() {
 		return new JsonConverter<TDoc>() {
 
 			@SuppressWarnings("unchecked")
