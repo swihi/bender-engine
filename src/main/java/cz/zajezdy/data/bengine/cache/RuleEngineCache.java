@@ -19,7 +19,7 @@ import cz.zajezdy.data.bengine.configuration.Configuration;
  * {
  * 	&#64;code
  * 	// use the cache as follows:
- * 	RuleEngine re = RuleEngineCache.get().getLockedRuleEngine("myconfig.json");
+ * 	RuleEngine re = RuleEngineCache.createInstance(ruleEngineProviderInstance).getLockedRuleEngine("myconfig.json");
  * 	// do something with the rule engine ...
  * 	// unlock the object when you are done
  * 	RuleEngineCache.get().unlock(re);
@@ -27,13 +27,10 @@ import cz.zajezdy.data.bengine.configuration.Configuration;
  * 
  * </pre>
  * 
- * @author Florian Beese
+ * @author Florian Beese, David Kovar
  *
  */
 public class RuleEngineCache {
-
-	private static RuleEngineCache instance = null;
-	private static RuleEngineProvider engineProvider = null;
 
 	@SuppressWarnings("rawtypes")
 	private Map<String, Configuration> configurationCache = new HashMap<String, Configuration>();
@@ -41,29 +38,25 @@ public class RuleEngineCache {
 	private Map<String, List<RuleEngine>> engineCache = new HashMap<String, List<RuleEngine>>();
 	private Set<RuleEngine> lockedEngines = new HashSet<RuleEngine>();
 	private Map<String, CacheStatistic> cacheStatistics = new HashMap<String, CacheStatistic>();
+	private RuleEngineProvider engineProvider = null;
 
 	private RuleEngineCache() {
 
 	}
 
-	public static synchronized RuleEngineCache get() {
-		if (instance == null) {
-			instance = new RuleEngineCache();
-		}
-		return instance;
-	}
-
 	/**
-	 * Registers the provided RuleEngineProvider, which is used, to retrieve the
-	 * configuration files, deserialize the configuration and create the engine
-	 * if needed.
+	 * Create a new instance of RuleEngineCache for a specific RuleEngineProvider.
+	 * Provided RuleEngineProvider will be used, to retrieve the configuration files,
+	 * deserialize the configuration and create the engine if needed.
 	 * You may use BasicRuleEngineProvider for easier usage.
-	 * 
-	 * @param ruleEngineProvider The rule engine provider, which the cache uses
+	 *
+	 * @param engineProvider The rule engine provider, which the cache uses
 	 *            to create new rule engines.
 	 */
-	public static void registerRuleEngineProvider(RuleEngineProvider ruleEngineProvider) {
-		engineProvider = ruleEngineProvider;
+	public static RuleEngineCache createInstance(RuleEngineProvider engineProvider) {
+		final RuleEngineCache instance = new RuleEngineCache();
+		instance.engineProvider = engineProvider;
+		return instance;
 	}
 
 	/**
@@ -128,6 +121,15 @@ public class RuleEngineCache {
 			engineCache.remove(key);
 			cacheStatistics.remove(key);
 		}
+	}
+
+	/**
+	 * Invalidate all cache items in this cache
+	 * After this call, the cache is empty
+	 */
+	public void invalidateAll() {
+		Set<String> keys = new HashSet<>(configurationCache.keySet());
+		keys.forEach(this::invalidate);
 	}
 
 	public List<CacheStatistic> getStatistics() {
