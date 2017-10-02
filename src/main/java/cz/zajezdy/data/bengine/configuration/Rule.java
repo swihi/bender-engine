@@ -1,11 +1,21 @@
 package cz.zajezdy.data.bengine.configuration;
 
+import cz.zajezdy.data.bengine.action.Action;
+
 import java.util.List;
 
 public interface Rule {
-	public String getExpression();
-	public String getDescription();
-	public List<String> getScriptActions();
-	public List<String> getExecutionActions();
-	public Integer getPriority();
+	String getExpression();
+	String getDescription();
+	List<String> getScriptActions();
+
+	/**
+	 * Execute actions from the list of registered Actions.
+	 * Take a look at {@link Action the Action inferace} for usage
+	 * information.
+	 *
+	 * @return List of action executions
+	 */
+	List<String> getExecutionActions();
+	Integer getPriority();
 }
