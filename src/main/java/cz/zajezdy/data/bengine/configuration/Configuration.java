@@ -5,19 +5,27 @@ import java.util.List;
 
 public interface Configuration<TDoc extends Document> {
 
-	public String getVersion();
+	String getVersion();
 
-	public List<? extends InputValidation> getInputValidations();
+	List<? extends InputValidation> getInputValidations();
 
-	public TDoc getDocument();
+	TDoc getDocument();
 
-	public List<? extends Rule> getRules();
+	List<? extends Rule> getRules();
 
-	public List<String> getPostExecution();
+	List<String> getPostExecution();
 
-	public List<String> getPreExecution();
+	List<String> getPreExecution();
 
-	public String getJsonDocument();
+	/**
+	 * Get JSON version of TDoc getDocument
+	 */
+	String getJsonDocument();
 
-	public void setJsonDocument(String jsonDoc);
+	/**
+	 * Set JSON version of TDoc document
+	 * It is necessary to set jsonDocument just after new Configuration is created, because it is used when creating
+	 * script for eval
+	 */
+	void setJsonDocument(String jsonDoc);
 }

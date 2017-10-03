@@ -33,6 +33,11 @@ public abstract class BasicRuleEngineProvider implements RuleEngineProvider {
 		return ruleEngine;
 	}
 
+	/**
+	 * Post creation hook. You can perform any operation on just created RuleEngine
+	 * before it was returned in getEngine method.
+	 * @param ruleEngine RuleEngine instance which has been just created
+	 */
 	protected abstract void configureEngine(RuleEngine ruleEngine);
 
 }

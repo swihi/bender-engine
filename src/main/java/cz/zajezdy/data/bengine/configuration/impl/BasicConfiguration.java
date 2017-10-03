@@ -36,22 +36,20 @@ public class BasicConfiguration<TDoc extends Document> implements Configuration<
 	}
 
 	@Override
-	public synchronized List<? extends Rule> getRules() {
-		// sort the rules synchronized on first access
-		// ensures reusage in multithreading and correct behavior
+	public List<? extends Rule> getRules() {
 		if (!rulesSorted) {
 			sortRules(rules);
 		}
 		return rules;
 	}
 
-	private void sortRules(List<? extends Rule> rules) {
-		Collections.sort(rules, new Comparator<Rule>() {
-
-			public int compare(Rule r1, Rule r2) {
-				return r1.getPriority() < r2.getPriority() ? -1 : 1;
-			}
-		});
+	private synchronized void sortRules(List<? extends Rule> rules) {
+		// sort the rules synchronized on first access
+		// ensures reusage in multithreading and correct behavior
+		if (!rulesSorted) {
+			rules.sort(Comparator.comparing(Rule::getPriority));
+			rulesSorted = true;
+		}
 	}
 
 	@Override

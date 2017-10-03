@@ -7,6 +7,7 @@ import java.util.Map;
 import javax.script.CompiledScript;
 import javax.script.ScriptException;
 
+import com.google.common.base.Strings;
 import org.apache.commons.lang3.StringUtils;
 
 import com.google.gson.Gson;
@@ -399,23 +400,23 @@ public abstract class AbstractRuleEngine implements RuleEngine {
 	}
 
 	private String getScript() {
-		String script = "";
+		StringBuilder script = new StringBuilder();
 
 		// script += "var execAction = function(actionMap, actionName, param) {
 		// com.jsre.engine.impl.ActionExecutor.exec(actionMap, actionName);
 		// actionMap.get(actionName).execute(); };";
 
-		script += "var executeScript = function(input, registeredActions) { \n";
+		script.append("var executeScript = function(input, registeredActions) { \n");
 
-		script += "var document = " + initialJsonDoc + ";\n";
+		script.append("var document = ").append(initialJsonDoc).append(";\n");
 
-		script += "function __getJsonDoc() { return JSON.stringify(document); }\n";
+		script.append("function __getJsonDoc() { return JSON.stringify(document); }\n");
 
 		@SuppressWarnings("unchecked")
 		List<String> preExecution = configuration.getPreExecution();
 		if (preExecution != null) {
 			for (String action : preExecution) {
-				script += appendSemicolonIfMissing(action) + "\n";
+				script.append(appendSemicolonIfMissing(action)).append("\n");
 			}
 		}
 
@@ -424,7 +425,9 @@ public abstract class AbstractRuleEngine implements RuleEngine {
 
 		for (Rule r : rules) {
 			String expression = r.getExpression();
-			script += "if (" + expression + ") { \n";
+			if (Strings.isNullOrEmpty(expression)) expression = "true";
+
+			script.append("if (").append(expression).append(") { \n");
 			List<String> scriptActions = r.getScriptActions();
 			if (scriptActions != null) {
 				for (String action : scriptActions) {
@@ -432,28 +435,28 @@ public abstract class AbstractRuleEngine implements RuleEngine {
 						throw new InvalidConfigurationException(
 								"Encountered an empty script action at rule '" + r.getExpression() + "'. Put a comma behind the last action?");
 					}
-					script += "  " + appendSemicolonIfMissing(action) + "\n";
+					script.append("  ").append(appendSemicolonIfMissing(action)).append("\n");
 				}
 			}
 			List<String> executionActions = r.getExecutionActions();
 			if (executionActions != null) {
 				for (String action : executionActions) {
 					String callExecAction = getActionScriptCall(r, action) + ";\n";
-					script += callExecAction;
+					script.append(callExecAction);
 				}
 			}
-			script += "}\n";
+			script.append("}\n");
 		}
 		@SuppressWarnings("unchecked")
 		List<String> postExecution = configuration.getPostExecution();
 		if (postExecution != null) {
 			for (String action : postExecution) {
-				script += appendSemicolonIfMissing(action) + "\n";
+				script.append(appendSemicolonIfMissing(action)).append("\n");
 			}
 		}
 
-		script += "return __getJsonDoc();\n}\n";
-		return script;
+		script.append("return __getJsonDoc();\n}\n");
+		return script.toString();
 	}
 
 	private String getActionScriptCall(Rule r, String action) {
