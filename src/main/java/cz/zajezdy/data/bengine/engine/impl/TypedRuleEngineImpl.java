@@ -51,19 +51,15 @@ public class TypedRuleEngineImpl<TDoc extends Document> implements TypedRuleEngi
 		ruleEngine.registerAction(name, action);
 	}
 
+
 	@Override
-	public void setInput(Map<String, Object> input) throws InputValidationException {
-		ruleEngine.setInput(input);
+	public void executeRules(Map<String, Object> input) throws ScriptException, InputValidationException {
+		ruleEngine.executeRules(input);
 	}
 
 	@Override
-	public void setInputStrings(Map<String, String> input) throws InputValidationException {
-		ruleEngine.setInputStrings(input);
-	}
-
-	@Override
-	public void executeRules() throws ScriptException {
-		ruleEngine.executeRules();
+	public void executeRulesWithStringInput(Map<String, String> input) throws ScriptException, InputValidationException {
+		ruleEngine.executeRulesWithStringInput(input);
 	}
 
 	@Override
@@ -99,16 +95,6 @@ public class TypedRuleEngineImpl<TDoc extends Document> implements TypedRuleEngi
 	@Override
 	public void printPerformanceMonitoring() {
 		ruleEngine.printPerformanceMonitoring();
-	}
-
-	@Override
-	public String getJsonInput() {
-		return ruleEngine.getJsonInput();
-	}
-
-	@Override
-	public String getJsonInputPrettyPrinted() {
-		return ruleEngine.getJsonInputPrettyPrinted();
 	}
 
 	@Override

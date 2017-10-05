@@ -24,9 +24,11 @@ public class CacheTest {
 
     private boolean threadHadError = false;
 
+    private RuleEngineCache ruleEngineCache;
+
     @Before
     public void setUp() {
-        RuleEngineCache.registerRuleEngineProvider(new BasicRuleEngineProvider() {
+        ruleEngineCache = RuleEngineCache.createInstance(new BasicRuleEngineProvider() {
 
             @Override
             public String getConfigurationContent(String filename) throws IOException {
@@ -44,26 +46,26 @@ public class CacheTest {
     public void testLocking() throws Exception {
         Map<String, Object> input = InputHelper.getTestDocumentInput();
 
-        RuleEngine re = RuleEngineCache.get().getLockedRuleEngine("testconfig.json");
+        RuleEngine re = ruleEngineCache.getLockedRuleEngine("testconfig.json");
         ExecutionHelper.execEngine(re, input);
-        RuleEngineCache.get().unlock(re);
+        ruleEngineCache.unlock(re);
 
-        RuleEngine re2 = RuleEngineCache.get().getLockedRuleEngine("testconfig.json");
+        RuleEngine re2 = ruleEngineCache.getLockedRuleEngine("testconfig.json");
         ExecutionHelper.execEngine(re2, input);
         // re was unlocked, so it is available again and will be retrieved with
         // the next get()
         assertTrue(re.equals(re2));
 
-        RuleEngine re3 = RuleEngineCache.get().getLockedRuleEngine("testconfig.json");
+        RuleEngine re3 = ruleEngineCache.getLockedRuleEngine("testconfig.json");
         ExecutionHelper.execEngine(re3, input);
         // re2 has not been unlocked, so for the next retrieval a new object has
         // to be created
         assertFalse(re2.equals(re3));
-        RuleEngineCache.get().unlock(re2);
-        RuleEngineCache.get().unlock(re3);
+        ruleEngineCache.unlock(re2);
+        ruleEngineCache.unlock(re3);
 
         if (PRINT_INFO) {
-            System.out.println(RuleEngineCache.get().getStatistics());
+            System.out.println(ruleEngineCache.getStatistics());
         }
     }
 
@@ -80,7 +82,7 @@ public class CacheTest {
             for (int i = 0; i < runCount; i++) {
                 RuleEngine re = null;
                 try {
-                    re = RuleEngineCache.get().getLockedRuleEngine("testconfig.json");
+                    re = ruleEngineCache.getLockedRuleEngine("testconfig.json");
                 } catch (IOException e1) {
                     e1.printStackTrace();
                 }
@@ -90,7 +92,7 @@ public class CacheTest {
                     threadHadError = true;
                     System.out.println("Encountered an error during execution: " + e.getMessage());
                 }
-                RuleEngineCache.get().unlock(re);
+                ruleEngineCache.unlock(re);
             }
             incrementFinished(this);
         }
@@ -130,20 +132,20 @@ public class CacheTest {
         assertFalse(threadHadError);
         if (PRINT_INFO) {
             System.out.println("Elapsed milliseconds: " + elapsed / 1000);
-            System.out.println(RuleEngineCache.get().getStatistics());
+            System.out.println(ruleEngineCache.getStatistics());
         }
     }
 
     @Test
     public void testConcurrencyWithSingleCacheWarming() throws IOException {
         threadHadError = false;
-        RuleEngine ruleEngine = RuleEngineCache.get().getLockedRuleEngine("testconfig.json");
-        RuleEngineCache.get().unlock(ruleEngine);
+        RuleEngine ruleEngine = ruleEngineCache.getLockedRuleEngine("testconfig.json");
+        ruleEngineCache.unlock(ruleEngine);
         double elapsed = runThreadTest(8, 8);
         assertFalse(threadHadError);
         if (PRINT_INFO) {
             System.out.println("Elapsed milliseconds: " + elapsed / 1000);
-            System.out.println(RuleEngineCache.get().getStatistics());
+            System.out.println(ruleEngineCache.getStatistics());
         }
     }
 
@@ -167,7 +169,7 @@ public class CacheTest {
 
             if (PRINT_INFO) {
                 System.out.println("Elapsed milliseconds: " + elapsed / 1000);
-                System.out.println(RuleEngineCache.get().getStatistics());
+                System.out.println(ruleEngineCache.getStatistics());
             }
         }
         assertFalse(threadHadError);

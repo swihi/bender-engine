@@ -47,16 +47,18 @@ public class RuleEngineTest {
 		ExecutionHelper.execEngineWithTestDocument("testconfig.json", InputHelper.getTestDocumentInput());
 	}
 
-	@Test
-	public void testMultipleExecution() throws Exception {
-		TypedRuleEngine<TestDocument> re = TestHelper.buildTestDocEngine("testconfig.json");
-		Map<String, Object> input = InputHelper.getTestDocumentInput();
-
-		ExecutionHelper.execEngineWithTestDocument(re, input);
-
-		input.put("input2", "testXX");
-		ExecutionHelper.execEngineWithTestDocument(re, input);
-	}
+//  To get rid of locking of RuleEngines in RuleEngineCache input paramaters are passed directly to executeMethod,
+//  so this test is obsolete
+//	@Test
+//	public void testMultipleExecution() throws Exception {
+//		TypedRuleEngine<TestDocument> re = TestHelper.buildTestDocEngine("testconfig.json");
+//		Map<String, Object> input = InputHelper.getTestDocumentInput();
+//
+//		ExecutionHelper.execEngineWithTestDocument(re, input);
+//
+//		input.put("input2", "testXX");
+//		ExecutionHelper.execEngineWithTestDocument(re, input);
+//	}
 
 	@Test
 	public void testWithoutDoc() throws Exception {
@@ -150,45 +152,18 @@ public class RuleEngineTest {
 		assertTrue(logActionExecuted);
 	}
 
-	private String expectedJsonInput = "{\"changingString\":\"world\",\"textInput\":\"test1\",\"inputNumber\":999.99,\"sphere\":5.0,\"input2\":\"test1\"}";
-	private String expectedJsonInputPrettyPrinted = "{\n  \"changingString\": \"world\",\n  \"textInput\": \"test1\",\n  \"inputNumber\": 999.99,\n  \"sphere\": 5.0,\n  \"input2\": \"test1\"\n}";
-
-	@Test
-	public void testGetInput() throws Exception {
-		Map<String, Object> input = InputHelper.getTestDocumentInput();
-		TypedRuleEngine<TestDocument> re = TestHelper.buildTestDocEngine("testconfig.json");
-		ExecutionHelper.execEngineWithTestDocument(re, input);
-		assertEquals(expectedJsonInput, re.getJsonInput());
-	}
-
-	@Test
-	public void testGetPrettyInput() throws Exception {
-		logActionExecuted = false;
-		Map<String, Object> input = InputHelper.getTestDocumentInput();
-		TypedRuleEngine<TestDocument> re = TestHelper.buildTestDocEngine("testconfig.json");
-		ExecutionHelper.execEngineWithTestDocument(re, input);
-		assertEquals(expectedJsonInputPrettyPrinted, re.getJsonInputPrettyPrinted());
-	}
-
-	@Test
-	public void testChangeInput() throws Exception {
-		logActionExecuted = false;
-		Map<String, Object> input = InputHelper.getTestDocumentInput();
-		TypedRuleEngine<TestDocument> re = TestHelper.buildTestDocEngine("testconfig.json");
-		ExecutionHelper.execEngineWithTestDocument(re, input);
-		@SuppressWarnings("unchecked")
-		HashMap<String, Object> changedInput = new Gson().fromJson(re.getJsonInput(), HashMap.class);
-		assertEquals("world", changedInput.get("changingString"));
-	}
-
-	@Test
-	public void testInputStrings() throws Exception {
-		logActionExecuted = false;
-		Map<String, String> input = InputHelper.getTestDocumentInputStrings();
-		TypedRuleEngine<TestDocument> re = TestHelper.buildTestDocEngine("testconfig.json");
-		ExecutionHelper.execEngineWithTestDocumentStringInput(re, input);
-		assertEquals(expectedJsonInput, re.getJsonInput());
-	}
+//  To get rid of locking of RuleEngines in RuleEngineCache input paramaters are passed directly to executeMethod,
+//  so this test is obsolete
+//	@Test
+//	public void testChangeInput() throws Exception {
+//		logActionExecuted = false;
+//		Map<String, Object> input = InputHelper.getTestDocumentInput();
+//		TypedRuleEngine<TestDocument> re = TestHelper.buildTestDocEngine("testconfig.json");
+//		ExecutionHelper.execEngineWithTestDocument(re, input);
+//		@SuppressWarnings("unchecked")
+//		HashMap<String, Object> changedInput = new Gson().fromJson(re.getJsonInput(), HashMap.class);
+//		assertEquals("world", input.get("changingString"));
+//	}
 
 	// TODO: check if code injection can and shall be reactivated
 	// @Test

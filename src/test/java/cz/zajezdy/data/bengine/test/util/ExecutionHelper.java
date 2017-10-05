@@ -19,12 +19,9 @@ import cz.zajezdy.data.bengine.test.configuration.model.TestDocument;
 public class ExecutionHelper {
 
 	public static String execEngine(RuleEngine re, Map<String, Object> input) throws InputValidationException, ScriptException {
-		re.setInput(input);
+		re.executeRules(input);
 
-		re.executeRules();
-
-		String pureJsonDoc = re.getJsonDocumentPrettyPrinted();
-		return pureJsonDoc;
+		return re.getJsonDocumentPrettyPrinted();
 	}
 
 	public static String execEngineWithTestDocument(String configFile, Map<String, Object> input) throws ScriptException, InputValidationException {
@@ -34,27 +31,28 @@ public class ExecutionHelper {
 
 	public static String execEngineWithTestDocumentStringInput(TypedRuleEngine<TestDocument> re, Map<String, String> input)
 			throws ScriptException, InputValidationException {
-		re.setInputStrings(input);
-		return execEngineWithTestDocument(re);
-	}
-
-	public static String execEngineWithTestDocument(TypedRuleEngine<TestDocument> re, Map<String, Object> input)
-			throws ScriptException, InputValidationException {
-		re.setInput(input);
-		return execEngineWithTestDocument(re);
-	}
-
-	public static String execEngineWithTestDocument(TypedRuleEngine<TestDocument> re) throws ScriptException, InputValidationException {
 		TestDocument d1 = re.getDocument();
 		assertFalse(d1.getTest());
 
-		re.executeRules();
+		re.executeRulesWithStringInput(input);
 
 		TestDocument d2 = re.getDocument();
 		assertTrue(d2.getTest());
 
-		String pureJsonDoc = re.getJsonDocumentPrettyPrinted();
-		return pureJsonDoc;
+		return re.getJsonDocumentPrettyPrinted();
+	}
+
+	public static String execEngineWithTestDocument(TypedRuleEngine<TestDocument> re, Map<String, Object> input)
+			throws ScriptException, InputValidationException {
+		TestDocument d1 = re.getDocument();
+		assertFalse(d1.getTest());
+
+		re.executeRules(input);
+
+		TestDocument d2 = re.getDocument();
+		assertTrue(d2.getTest());
+
+		return re.getJsonDocumentPrettyPrinted();
 	}
 
 	public static void execEngineWithTestDocumentInputValidationError(String configFile, Map<String, Object> input, String inputParamName)
@@ -71,12 +69,10 @@ public class ExecutionHelper {
 	public static String execEngineWithComputerDocument(String configFile, Map<String, Object> request) throws ScriptException, InputValidationException {
 		TypedRuleEngine<ComputerDocument> re = TestHelper.buildDocEngine(configFile, ComputerDocument.class);
 
-		re.setInput(request);
-
 		ComputerDocument d1 = re.getDocument();
 		assertEquals(10.0, d1.getGhz().get("1.5").getPrice(), 0.0001);
 
-		re.executeRules();
+		re.executeRules(request);
 
 		ComputerDocument d2 = re.getDocument();
 		assertEquals(20.0, d2.getGhz().get("1.5").getPrice(), 0.0001);
