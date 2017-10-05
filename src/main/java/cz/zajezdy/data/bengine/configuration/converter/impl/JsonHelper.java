@@ -14,7 +14,7 @@ public class JsonHelper {
 	}
 
 	public static <T> T fromJson(String json, Type type) {
-		Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").create();
+		Gson gson = new GsonBuilder().serializeNulls().setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").create();
 		return gson.fromJson(json, type);
 	}
 }

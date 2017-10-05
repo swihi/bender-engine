@@ -11,11 +11,20 @@ import cz.zajezdy.data.bengine.configuration.impl.BasicConfiguration;
 import java.io.IOException;
 
 public abstract class TypedRuleEngineProvider<TDoc extends Document> implements RuleEngineProvider {
-    private final TypedConverterProvider<TDoc> converterProvider = new TypedConverterProvider<TDoc>();
+    private final TypedConverterProvider<TDoc> converterProvider;
     private Class<TDoc> documentClass;
 
+    protected TypedRuleEngineProvider() {
+        this.converterProvider = new TypedConverterProvider<>();
+    }
+
     public void setDocumentType(Class<TDoc> clazz) {
+        this.converterProvider.setDocumentType(clazz);
         this.documentClass = clazz;
+    }
+
+    public Class<TDoc> getDocumentClass() {
+        return this.documentClass;
     }
 
     @Override
@@ -32,6 +41,7 @@ public abstract class TypedRuleEngineProvider<TDoc extends Document> implements 
         if (documentClass == null) {
             return null;
         }
+        converterProvider.setConfigurationType(configuration.getClass());
         RuleEngineBuilder reb = new RuleEngineBuilder();
         reb.withConfiguration(configuration);
         reb.withJsonConverterProvider(converterProvider);
