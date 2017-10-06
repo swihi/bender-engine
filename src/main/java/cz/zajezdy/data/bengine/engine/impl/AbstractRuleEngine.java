@@ -299,7 +299,9 @@ public abstract class AbstractRuleEngine implements RuleEngine {
 		// com.jsre.engine.impl.ActionExecutor.exec(actionMap, actionName);
 		// actionMap.get(actionName).execute(); };";
 
-		script.append("var executeScript = function(input, registeredActions) { \n");
+		script.append("var executeScript = function(inputJson, registeredActions) { \n");
+
+		script.append("var input; try { input = JSON.parse(inputJson); } catch (e) { return inputJson; }");
 
 		script.append("var document = ").append(initialJsonDoc).append(";\n");
 
@@ -528,7 +530,7 @@ public abstract class AbstractRuleEngine implements RuleEngine {
 				throw new InvalidConfigurationException("Encountered empty input parameter definition. Got a comma after the last object in the json file?");
 			}
 			String name = iv.getName();
-			setPerformanceMarker("setInput analyzing '" + name + "'");
+			setPerformanceMarker("validateInput analyzing '" + name + "'");
 			if (input.containsKey(name)) {
 				Object data = input.get(name);
 				checkInput(iv, name, data);
