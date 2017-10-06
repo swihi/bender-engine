@@ -13,7 +13,6 @@ import org.junit.runners.Suite.SuiteClasses;
 	ComputerConfigTest.class,
 	CacheTest.class,
 	SecurityTest.class,
-	WrapperTest.class,
 	PerformanceMonitoringTest.class	  //TODO implement assertions for this test
 })
 //@formatter:on

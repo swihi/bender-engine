@@ -25,15 +25,13 @@ public class PerformanceMonitoringTest {
 		RuleEngine re = RuleEngineFactory.getPerformanceMonitoredEngine(json);
 		re.registerAction("LogAction", new LogAction());
 
-		re.setInput(input);
-		re.executeRules();
+		re.executeRules(input);
 		re.printPerformanceMonitoring();
 
 		// reset monitoring data:
 		re.enablePerformanceMonitoring();
 
-		re.setInput(input);
-		re.executeRules();
+		re.executeRules(input);
 		re.printPerformanceMonitoring();
 	}
 
@@ -43,15 +41,13 @@ public class PerformanceMonitoringTest {
 		String json = ResourceFileHelper.getFileContentNoException(TEST_CONFIGURATION);
 		RuleEngine re = RuleEngineFactory.getPerformanceMonitoredEngine(json);
 
-		re.setInput(input);
-		re.executeRules();
+		re.executeRules(input);
 		re.printPerformanceMonitoring();
 
 		// reset monitoring data:
 		re.enablePerformanceMonitoring();
 
-		re.setInput(input);
-		re.executeRules();
+		re.executeRules(input);
 		re.printPerformanceMonitoring();
 	}
 
@@ -68,8 +64,7 @@ public class PerformanceMonitoringTest {
 		Map<String, Object> input = InputHelper.getComputerConfigurationInput();
 		String json = ResourceFileHelper.getFileContentNoException(TEST_CONFIGURATION);
 		RuleEngine re = RuleEngineFactory.getEngine(json);
-		re.setInput(input);
-		re.executeRules();
+		re.executeRules(input);
 		measureMultipleRuns(re, input, 100);
 	}
 
@@ -86,8 +81,7 @@ public class PerformanceMonitoringTest {
 		for (int i = 1; i <= runCount; i++) {
 			long start = System.nanoTime();
 
-			re.setInput(input);
-			re.executeRules();
+			re.executeRules(input);
 
 			long executionTime = System.nanoTime() - start;
 			if (executionTime < minTime) {

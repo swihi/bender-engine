@@ -11,7 +11,6 @@ import com.google.common.base.Strings;
 import org.apache.commons.lang3.StringUtils;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 
 import cz.zajezdy.data.bengine.RuleEngine;
 import cz.zajezdy.data.bengine.action.Action;
@@ -43,8 +42,6 @@ public abstract class AbstractRuleEngine implements RuleEngine {
 	private boolean enableSecurity = false;
 
 	private CompiledScript compiledScript = null;
-	@SuppressWarnings("rawtypes")
-	private Map input = null;
 
 	// @SuppressWarnings("unused")
 	// private Class<? extends Document> documentType;
@@ -287,110 +284,6 @@ public abstract class AbstractRuleEngine implements RuleEngine {
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.jsre.RuleEngineType#setInputStrings(java.util.Map)
-	 */
-	@Override
-	public void setInputStrings(Map<String, String> input) throws InputValidationException {
-		this.input = input;
-		setPerformanceMarker("convert input");
-		Map<String, Object> convertedData = new HashMap<String, Object>();
-
-		@SuppressWarnings("unchecked")
-		List<? extends InputValidation> inputValidations = configuration.getInputValidations();
-
-		if (inputValidations == null) {
-			throw new InvalidConfigurationException("configuration does not contain element inputValidation");
-		}
-		for (InputValidation iv : inputValidations) {
-			if (iv == null) {
-				throw new InvalidConfigurationException("Encountered empty input parameter definition. Got a comma after the last object in the json file?");
-			}
-			String key = iv.getName();
-			String inputString = input.get(key);
-			if (inputString == null) {
-				continue;
-			}
-			switch (iv.getType()) {
-			case "Code":
-				convertedData.put(key, inputString);
-				break;
-			case "Integer":
-				try {
-					convertedData.put(key, Integer.valueOf(inputString));
-				}
-				catch (NumberFormatException e) {
-					throw new InputValidationException("Cannot convert '" + inputString + "' to Integer for parameter '" + key + "'");
-				}
-				break;
-			case "Double":
-				try {
-					convertedData.put(key, Double.valueOf(inputString));
-				}
-				catch (NumberFormatException e) {
-					throw new InputValidationException("Cannot convert '" + inputString + "' to Double for parameter '" + key + "'");
-				}
-				break;
-			case "String":
-				convertedData.put(key, inputString);
-				break;
-			case "Boolean":
-				if (!(StringUtils.equalsIgnoreCase("false", inputString) || StringUtils.equalsIgnoreCase("true", inputString))) {
-					throw new InputValidationException(
-							"Expected 'true' or 'false' for type Boolean, but got '" + inputString + "' for parameter '" + key + "'");
-				}
-				convertedData.put(key, Boolean.valueOf(inputString));
-				break;
-			default:
-				convertedData.put(key, inputString);
-				break;
-			}
-		}
-		setInput(convertedData);
-	}
-
-	// TODO: refactor both input functions
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.jsre.RuleEngineType#setInput(java.util.Map)
-	 */
-	@Override
-	public void setInput(Map<String, Object> input) throws InputValidationException {
-		this.input = input;
-		setPerformanceMarker("setInput call");
-		resetEngine();
-		@SuppressWarnings("unchecked")
-		List<? extends InputValidation> inputValidations = configuration.getInputValidations();
-
-		if (inputValidations == null) {
-			throw new InvalidConfigurationException("configuration does not contain element inputValidation");
-		}
-
-		for (InputValidation iv : inputValidations) {
-			if (iv == null) {
-				throw new InvalidConfigurationException("Encountered empty input parameter definition. Got a comma after the last object in the json file?");
-			}
-			String name = iv.getName();
-			setPerformanceMarker("setInput analyzing '" + name + "'");
-			if (input.containsKey(name)) {
-				Object data = input.get(name);
-				checkInput(iv, name, data);
-			}
-			else {
-				if (iv.isMandatory() != null && iv.isMandatory()) {
-					throw new InputValidationException("Mandatory parameter '" + name + "' is missing");
-				}
-			}
-		}
-		// TODO: check, if this is still needed...
-		setPerformanceMarker("setInput MAP");
-		// engine.put("input", input);
-		setPerformanceMarker("setInput done");
-	}
-
 	private String appendSemicolonIfMissing(String action) {
 		String scriptAction = action.trim();
 		if (!(scriptAction.endsWith(";") || scriptAction.endsWith("}"))) {
@@ -406,7 +299,9 @@ public abstract class AbstractRuleEngine implements RuleEngine {
 		// com.jsre.engine.impl.ActionExecutor.exec(actionMap, actionName);
 		// actionMap.get(actionName).execute(); };";
 
-		script.append("var executeScript = function(input, registeredActions) { \n");
+		script.append("var executeScript = function(inputJson, registeredActions) { \n");
+
+		script.append("var input; try { input = JSON.parse(inputJson); } catch (e) { return inputJson; }");
 
 		script.append("var document = ").append(initialJsonDoc).append(";\n");
 
@@ -510,27 +405,35 @@ public abstract class AbstractRuleEngine implements RuleEngine {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see com.jsre.RuleEngineType#executeRules()
+	 * @see cz.zajezdy.data.bengine.RuleEngineType#executeRules()
 	 */
 	@Override
-	public void executeRules() throws ScriptException {
+	public void executeRules(Map<String, Object> input) throws ScriptException, InputValidationException {
 		setPerformanceMarker("executeRules call");
-		if (engine == null) {
-			// TODO: log warning - not initialized
-			initEngine();
-		}
+
+		resetEngine();
+
+		validateInputMap(input);
 
 		// compiles the script first time
 		getCompiledScript();
 
+		String jsonInput = new Gson().toJson(input);
+
 		try {
-			JsMapWrapper wrapper = new JsMapWrapper(input);
-			Object object = engine.invokeFunction("executeScript", wrapper, registeredActions);
+			Object object = engine.invokeFunction("executeScript", jsonInput, registeredActions);
 			jsonDoc = (String) object;
 		}
 		catch (NoSuchMethodException e) {
 			e.printStackTrace();
 		}
+
+		setPerformanceMarker("executeRules finished");
+	}
+
+	@Override
+	public void executeRulesWithStringInput(Map<String, String> input) throws ScriptException, InputValidationException {
+		executeRules(validateAndConvertInputMap(input));
 	}
 
 	@Override
@@ -551,18 +454,6 @@ public abstract class AbstractRuleEngine implements RuleEngine {
 	@Override
 	public String getJsonDocumentPrettyPrinted() {
 		return prettifyJson(jsonDoc);
-	}
-
-	@Override
-	public String getJsonInput() {
-		initEngine();
-		return new Gson().toJson(input);
-	}
-
-	@Override
-	public String getJsonInputPrettyPrinted() {
-		Gson gson = new GsonBuilder().setPrettyPrinting().create();
-		return gson.toJson(input);
 	}
 
 	protected void eval(String javascript) throws ScriptException {
@@ -623,6 +514,100 @@ public abstract class AbstractRuleEngine implements RuleEngine {
 		if (performanceMonitoring) {
 			performanceMarkerMgr.addMarker(marker);
 		}
+	}
+
+	private void validateInputMap(Map<String, Object> input) throws InputValidationException {
+		setPerformanceMarker("process input");
+		@SuppressWarnings("unchecked")
+		List<? extends InputValidation> inputValidations = configuration.getInputValidations();
+
+		if (inputValidations == null) {
+			throw new InvalidConfigurationException("configuration does not contain element inputValidation");
+		}
+
+		for (InputValidation iv : inputValidations) {
+			if (iv == null) {
+				throw new InvalidConfigurationException("Encountered empty input parameter definition. Got a comma after the last object in the json file?");
+			}
+			String name = iv.getName();
+			setPerformanceMarker("validateInput analyzing '" + name + "'");
+			if (input.containsKey(name)) {
+				Object data = input.get(name);
+				checkInput(iv, name, data);
+			}
+			else {
+				if (iv.isMandatory() != null && iv.isMandatory()) {
+					throw new InputValidationException("Mandatory parameter '" + name + "' is missing");
+				}
+			}
+		}
+		setPerformanceMarker("process input done");
+	}
+
+	/**
+	 * Convert string input parameters to correct types defined in Input Validations
+	 *
+	 * @param input A map of Strings. The RuleEngine will try to convert the strings to the datatype specified in the configuration.
+	 * @throws InputValidationException If a parameter does not match the
+	 *             validation rules, of the configuration an InputValidationException is
+	 *             thrown containing information, what went wrong.
+	 */
+	private Map<String, Object> validateAndConvertInputMap(Map<String, String> input) throws InputValidationException {
+		setPerformanceMarker("validate and convert input");
+		Map<String, Object> convertedData = new HashMap<String, Object>();
+
+		@SuppressWarnings("unchecked")
+		List<? extends InputValidation> inputValidations = configuration.getInputValidations();
+
+		if (inputValidations == null) {
+			throw new InvalidConfigurationException("configuration does not contain element inputValidation");
+		}
+		for (InputValidation iv : inputValidations) {
+			if (iv == null) {
+				throw new InvalidConfigurationException("Encountered empty input parameter definition. Got a comma after the last object in the json file?");
+			}
+			String key = iv.getName();
+			String inputString = input.get(key);
+			if (inputString == null) {
+				continue;
+			}
+			switch (iv.getType()) {
+				case "Code":
+					convertedData.put(key, inputString);
+					break;
+				case "Integer":
+					try {
+						convertedData.put(key, Integer.valueOf(inputString));
+					}
+					catch (NumberFormatException e) {
+						throw new InputValidationException("Cannot convert '" + inputString + "' to Integer for parameter '" + key + "'");
+					}
+					break;
+				case "Double":
+					try {
+						convertedData.put(key, Double.valueOf(inputString));
+					}
+					catch (NumberFormatException e) {
+						throw new InputValidationException("Cannot convert '" + inputString + "' to Double for parameter '" + key + "'");
+					}
+					break;
+				case "String":
+					convertedData.put(key, inputString);
+					break;
+				case "Boolean":
+					if (!(StringUtils.equalsIgnoreCase("false", inputString) || StringUtils.equalsIgnoreCase("true", inputString))) {
+						throw new InputValidationException(
+								"Expected 'true' or 'false' for type Boolean, but got '" + inputString + "' for parameter '" + key + "'");
+					}
+					convertedData.put(key, Boolean.valueOf(inputString));
+					break;
+				default:
+					convertedData.put(key, inputString);
+					break;
+			}
+		}
+		setPerformanceMarker("validate and convert input finished");
+		return convertedData;
 	}
 
 	protected void resetDocument() {

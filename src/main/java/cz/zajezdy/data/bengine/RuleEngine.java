@@ -55,34 +55,32 @@ public interface RuleEngine {
 	void registerAction(String name, Action action);
 
 	/**
-	 * Set's the input for, which the rules will be executed on.
-	 * 
+	 * Executes the rules defined in the configuration.
+	 * Also executes post-processing actions.
+	 *
 	 * @param input A map of Objects (e.g. Integer, String ...) with the name of
 	 *            the parameter in the configuration as key.
 	 * @throws InputValidationException If a parameter does not match the the
 	 *             validation rules, of the configuration an InputValidationException is
 	 *             thrown containing information, what went wrong.
-	 */
-	void setInput(Map<String, Object> input) throws InputValidationException;
-
-	/**
-	 * Set's the input for, which the rules will be executed on.
-	 * 
-	 * @param input A map of Strings. The RuleEngine will try to convert the strings to the datatype specified in the configuration.
-	 * @throws InputValidationException If a parameter does not match the the
-	 *             validation rules, of the configuration an InputValidationException is
-	 *             thrown containing information, what went wrong.
-	 */
-	void setInputStrings(Map<String, String> input) throws InputValidationException;
-
-	/**
-	 * Executes the rules defined in the configuration.
-	 * Also executes post-processing actions.
-	 * 
 	 * @throws ScriptException During action evaluation a ScriptException may be
 	 *             thrown, if the javascript code cannot be executed.
 	 */
-	void executeRules() throws ScriptException;
+	void executeRules(Map<String, Object> input) throws ScriptException, InputValidationException;
+
+	/**
+	 * Executes the rules defined in the configuration.
+	 * Also executes post-processing actons.
+	 *
+	 * @param input A map of input parameters (name-value) in string form. These parameters are provided to the script
+	 *              when executed
+	 * @throws InputValidationException If a parameter does not match the the
+	 *             validation rules, of the configuration an InputValidationException is
+	 *             thrown containing information, what went wrong.
+	 * @throws ScriptException During action evaluation a ScriptException may be
+	 *             thrown, if the javascript code cannot be executed.
+	 */
+	void executeRulesWithStringInput(Map<String, String> input) throws ScriptException, InputValidationException;
 
 	/**
 	 * Returns the document in the current state.
@@ -125,23 +123,6 @@ public interface RuleEngine {
 	 * the performance markers.
 	 */
 	void printPerformanceMonitoring();
-
-	/**
-	 * Returns the input of the engine as json. This may have been modified
-	 * during runtime. If so the modified input is returned.
-	 * 
-	 * @return the input as json
-	 */
-	String getJsonInput();
-
-	/**
-	 * Returns the input of the engine as json. This may have been modified
-	 * during runtime. If so the modified input is returned.
-	 * The input is returned in a pretty printed way.
-	 * 
-	 * @return the input as json
-	 */
-	String getJsonInputPrettyPrinted();
 
 	/**
 	 * Enables the secure execution of the configuration java script.
