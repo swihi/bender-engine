@@ -3,7 +3,7 @@
 	
 	<groupId>cz.zajezdy.data</groupId>
 	<artifactId>bender-engine</artifactId>
-	<version>0.2.3</version>
+	<version>0.2.4-SNAPSHOT</version>
 	<packaging>jar</packaging>
 	
 	<name>bender-engine</name>
@@ -72,7 +72,7 @@
 
 	<scm>
 		<developerConnection>scm:git:https://github.com/zajezdy/bender-engine.git</developerConnection>
-		<tag>bender-engine-0.2.3</tag>
+		<tag>bender-engine-0.2.0</tag>
 	</scm>
 	<distributionManagement>
 		<repository>
