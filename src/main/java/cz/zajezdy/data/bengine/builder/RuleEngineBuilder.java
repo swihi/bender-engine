@@ -105,8 +105,7 @@ public class RuleEngineBuilder {
 		if (this.converterProvider == null) {
 			TypedConverterProvider<TDoc> prov = new TypedConverterProvider<TDoc>();
 			prov.setDocumentType(docClass);
-			ParameterizedType configType = TypeUtils.parameterize(BasicConfiguration.class, docClass);
-			prov.setConfigurationType(configType);
+			prov.setConfigurationType(BasicConfiguration.class);
 			this.converterProvider = prov;
 		}
 		re.setConverterProvider(this.converterProvider);

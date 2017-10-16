@@ -30,8 +30,7 @@ public class ConverterTest {
 	@Test
 	public void test() {
 		TypedConverterProvider<TestDocument> prov = new TypedConverterProvider<TestDocument>();
-		ParameterizedType configType = TypeUtils.parameterize(BasicConfiguration.class, TestDocument.class);
-		prov.setConfigurationType(configType);
+		prov.setConfigurationType(BasicConfiguration.class);
 		prov.setDocumentType(TestDocument.class);
 		@SuppressWarnings("rawtypes")
 		JsonConverter<Configuration> configConverter = prov.getConverter(Configuration.class);
@@ -41,10 +40,9 @@ public class ConverterTest {
 		assertEquals("hello", testDoc.getTestText());
 
 		@SuppressWarnings("unchecked")
-		BasicConfiguration<TestDocument> testConfig = (BasicConfiguration<TestDocument>) configConverter.fromJson(getTestConfigJson());
+		BasicConfiguration testConfig = (BasicConfiguration) configConverter.fromJson(getTestConfigJson());
 		assertEquals("1.1", testConfig.getVersion());
-		TestDocument testDoc2 = testConfig.getDocument();
-		assertFalse(testDoc.getTest());
-		assertEquals("no clue", testDoc2.getTestText());
+		String testDoc2 = testConfig.getDocument();
+		assertEquals("{\"test\":false,\"expensive\":false,\"testText\":\"no clue\",\"testValue\":5.0,\"inject\":\"none\"}", testDoc2);
 	}
 }

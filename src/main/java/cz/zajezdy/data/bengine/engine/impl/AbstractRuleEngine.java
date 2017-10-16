@@ -470,7 +470,7 @@ public abstract class AbstractRuleEngine implements RuleEngine {
 	}
 
 	private void afterConfigLoad() {
-		initialJsonDoc = this.configuration.getJsonDocument();
+		initialJsonDoc = this.configuration.getDocument();
 		jsonDoc = initialJsonDoc;
 	}
 

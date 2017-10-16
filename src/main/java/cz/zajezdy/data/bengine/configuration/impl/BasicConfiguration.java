@@ -1,20 +1,20 @@
 package cz.zajezdy.data.bengine.configuration.impl;
 
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import cz.zajezdy.data.bengine.configuration.Configuration;
-import cz.zajezdy.data.bengine.configuration.Document;
 import cz.zajezdy.data.bengine.configuration.InputValidation;
 import cz.zajezdy.data.bengine.configuration.Rule;
+import cz.zajezdy.data.bengine.configuration.converter.impl.JsonHelper;
 
 
-public class BasicConfiguration<TDoc extends Document> implements Configuration<TDoc> {
+public class BasicConfiguration implements Configuration {
 
 	private String version;
-	private TDoc document;
+	private Map<String, Object> document;
 	private CopyOnWriteArrayList<BasicInputValidation> inputValidation;
 	private CopyOnWriteArrayList<BasicRule> rules;
 	private CopyOnWriteArrayList<String> postExecution;
@@ -29,10 +29,6 @@ public class BasicConfiguration<TDoc extends Document> implements Configuration<
 
 	public List<? extends InputValidation> getInputValidations() {
 		return inputValidation;
-	}
-
-	public TDoc getDocument() {
-		return document;
 	}
 
 	@Override
@@ -63,11 +59,13 @@ public class BasicConfiguration<TDoc extends Document> implements Configuration<
 	}
 
 	@Override
-	public String getJsonDocument() {
+	public String getDocument() {
+		if (__jsonDocument == null) {
+			 __jsonDocument = JsonHelper.toJson(document);
+		}
 		return __jsonDocument;
 	}
 
-	@Override
 	public void setJsonDocument(String jsonDocument) {
 		__jsonDocument = jsonDocument;
 	}

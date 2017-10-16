@@ -17,7 +17,7 @@ public class BasicConverterProvider implements JsonConverterProvider {
 	@SuppressWarnings("rawtypes")
 	private Type getClassType(final Class interfaceType) {
 		if (interfaceType == Configuration.class) {
-			return new TypeToken<BasicConfiguration<BasicDocument>>() {}.getType();
+			return new TypeToken<BasicConfiguration>() {}.getType();
 		}
 		if (interfaceType == Document.class) {
 			return new TypeToken<BasicDocument>() {}.getType();
