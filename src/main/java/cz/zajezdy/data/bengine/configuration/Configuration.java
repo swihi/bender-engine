@@ -1,5 +1,7 @@
 package cz.zajezdy.data.bengine.configuration;
 
+import cz.zajezdy.data.bengine.engine.ScriptBuilderType;
+
 import java.util.List;
 
 
@@ -14,6 +16,8 @@ public interface Configuration {
 	List<String> getPostExecution();
 
 	List<String> getPreExecution();
+
+	ScriptBuilderType getScriptBuilderType();
 
 	/**
 	 * This is initial version of the output document.
