@@ -36,4 +36,11 @@ public class InputHelper {
 		return input;
 	}
 
+	public static Map<String, Object> getMultioutputConfigurationInput(Boolean expensive, Boolean test) {
+		Map<String, Object> input = new HashMap<String, Object>();
+		input.put("testText", "Original name");
+		input.put("expensive", expensive);
+		input.put("test", test);
+		return input;
+	}
 }
