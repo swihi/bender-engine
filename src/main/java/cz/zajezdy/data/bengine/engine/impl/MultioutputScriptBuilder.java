@@ -41,13 +41,12 @@ public class MultioutputScriptBuilder extends AbstractScriptBuilder {
         StringBuilder script = new StringBuilder();
 
         script.append(CLONE_FUNCTION);
-        script.append(ADD_TO_OUTPUT_FUNCTION);
-
-        script.append("var output = { 'documentList' : [] };\n");
-        script.append("var document = ").append(configuration.getDocument()).append(";\n\n");
 
         script.append("var executeScript = function(inputJson, registeredActions) { \n");
         script.append("var input; try { input = JSON.parse(inputJson); } catch (e) { return inputJson; }\n");
+        script.append("var document = ").append(configuration.getDocument()).append(";\n\n");
+        script.append("var output = { 'documentList' : [] };\n");
+        script.append(ADD_TO_OUTPUT_FUNCTION);
 
         @SuppressWarnings("unchecked")
         List<String> preExecution = configuration.getPreExecution();
