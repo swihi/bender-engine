@@ -285,14 +285,14 @@ public abstract class AbstractRuleEngine implements RuleEngine {
 	}
 
 	public CompiledScript getCompiledScript() throws ScriptException {
-		String script;
-		if (ScriptBuilderType.MULTIOUTPUT.equals(configuration.getScriptBuilderType())) {
-			script = MultioutputScriptBuilder.getScript(configuration, registeredActions);
-		} else {
-			script = BasicScriptBuilder.getScript(configuration, registeredActions);
-		}
-
 		if (compiledScript == null) {
+			String script;
+			if (ScriptBuilderType.MULTIOUTPUT.equals(configuration.getScriptBuilderType())) {
+				script = MultioutputScriptBuilder.getScript(configuration, registeredActions);
+			} else {
+				script = BasicScriptBuilder.getScript(configuration, registeredActions);
+			}
+
 			compiledScript = engine.getCompiledScript(script);
 		}
 		return compiledScript;
