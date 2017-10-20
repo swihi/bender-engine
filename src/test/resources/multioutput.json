@@ -1,0 +1,63 @@
+{
+  "version"  : "1.1",
+
+  "inputValidation" : [
+    {
+      "name" : "testText",
+      "type" : "String",
+      "mandatory" : true
+    },
+    {
+      "name" : "expensive",
+      "type" : "Boolean",
+      "mandatory" : true
+    },
+    {
+      "name" : "test",
+      "type" : "Boolean",
+      "mandatory" : false
+    }
+  ],
+
+  "scriptBuilderType" : "MULTIOUTPUT",
+
+  "document" : {
+    "test" : false,
+    "expensive" : false,
+    "testText" : "no clue"
+  },
+  "rules" : [
+    {
+      "expression" : "input.expensive",
+      "description" : "Add input object directly to output for expensive objects",
+      "priority" : 1,
+      "scriptActions" : [
+        "addToOutput()"
+      ]
+    },
+    {
+      "expression" : "true",
+      "description" : "Change label",
+      "priority" : 2,
+      "scriptActions" : [
+        "document.testText = 'Changed name'"
+      ]
+    },
+    {
+      "expression" : "input.expensive",
+      "description" : "Add changed object to output for expensive objects",
+      "priority" : 3,
+      "scriptActions" : [
+        "addToOutput()"
+      ]
+    },
+    {
+      "expression" : "input.test",
+      "description" : "Set canContinue = false",
+      "priority" : 4,
+      "scriptActions" : [
+        "output.canContinue = false"
+      ]
+    }
+  ]
+}

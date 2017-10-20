@@ -2,13 +2,6 @@ package cz.zajezdy.data.bengine.configuration.converter.impl;
 
 import java.lang.reflect.Type;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonDeserializer;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParseException;
-
 import cz.zajezdy.data.bengine.configuration.Configuration;
 import cz.zajezdy.data.bengine.configuration.Document;
 import cz.zajezdy.data.bengine.configuration.converter.JsonConverter;
@@ -41,27 +34,14 @@ public class TypedConverterProvider<TDoc extends Document> implements JsonConver
 		throw new RuntimeException("unsupported type for json converion");
 	}
 
-	public JsonConverter<BasicConfiguration<TDoc>> getConfigurationJsonConverter() {
-		return new JsonConverter<BasicConfiguration<TDoc>>() {
+	public JsonConverter<BasicConfiguration> getConfigurationJsonConverter() {
+		return new JsonConverter<BasicConfiguration>() {
 
-			private String jsonDocument;
-
-			public BasicConfiguration<TDoc> fromJson(final String json) {
-				Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").registerTypeAdapter(documentType, new JsonDeserializer<Document>() {
-
-					@Override
-					public TDoc deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
-						jsonDocument = json.toString();
-						return getDocumentJsonConverter().fromJson(jsonDocument);
-					}
-
-				}).create();
-				BasicConfiguration<TDoc> t = gson.fromJson(json, configurationType);
-				t.setJsonDocument(jsonDocument);
-				return t;
+			public BasicConfiguration fromJson(final String json) {
+				return JsonHelper.fromJson(json, configurationType);
 			}
 
-			public String toJson(final BasicConfiguration<TDoc> object) {
+			public String toJson(final BasicConfiguration object) {
 				return JsonHelper.toJson(object);
 			}
 		};

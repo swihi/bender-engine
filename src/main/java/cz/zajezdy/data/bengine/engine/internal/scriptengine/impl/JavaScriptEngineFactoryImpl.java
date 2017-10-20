@@ -41,7 +41,7 @@ public class JavaScriptEngineFactoryImpl implements JavaScriptEngineFactory {
 		}
 
 		if (performanceMarkerMgr != null) {
-			performanceMarkerMgr.addMarker("getting engine factory");
+			performanceMarkerMgr.addMarker("getting engine factory with security");
 		}
 		ScriptEngineManager manager = new ScriptEngineManager();
 		ScriptEngineFactory factory = null;
@@ -58,7 +58,7 @@ public class JavaScriptEngineFactoryImpl implements JavaScriptEngineFactory {
 			}
 		}
 		if (performanceMarkerMgr != null) {
-			performanceMarkerMgr.addMarker("getting engine");
+			performanceMarkerMgr.addMarker("getting engine with security");
 		}
 		if (factory instanceof jdk.nashorn.api.scripting.NashornScriptEngineFactory) {
 			jdk.nashorn.api.scripting.NashornScriptEngineFactory nashorn = (jdk.nashorn.api.scripting.NashornScriptEngineFactory) factory;

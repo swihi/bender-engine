@@ -8,6 +8,7 @@ import javax.script.CompiledScript;
 import javax.script.ScriptException;
 
 import com.google.common.base.Strings;
+import cz.zajezdy.data.bengine.engine.ScriptBuilderType;
 import org.apache.commons.lang3.StringUtils;
 
 import com.google.gson.Gson;
@@ -48,7 +49,6 @@ public abstract class AbstractRuleEngine implements RuleEngine {
 
 	protected String jsonDoc = null;
 
-	private String initialJsonDoc = null;
 	private PerformanceMarkerMgr performanceMarkerMgr;
 
 	public AbstractRuleEngine() {}
@@ -62,7 +62,7 @@ public abstract class AbstractRuleEngine implements RuleEngine {
 	@Override
 	public void setConfiguration(@SuppressWarnings("rawtypes") Configuration configuration) {
 		this.configuration = configuration;
-		afterConfigLoad();
+		resetDocument();
 	}
 
 	// public void setDocumentType(Class<? extends Document> documentType) {
@@ -78,7 +78,7 @@ public abstract class AbstractRuleEngine implements RuleEngine {
 	public void setJsonConfiguration(String jsonConfig) {
 		setPerformanceMarker("setJsonConfiguration call");
 		this.configuration = getConfiguration(jsonConfig, this.converterProdiver);
-		afterConfigLoad();
+		resetDocument();
 		setPerformanceMarker("setJsonConfiguration finished");
 	}
 
@@ -284,120 +284,16 @@ public abstract class AbstractRuleEngine implements RuleEngine {
 		}
 	}
 
-	private String appendSemicolonIfMissing(String action) {
-		String scriptAction = action.trim();
-		if (!(scriptAction.endsWith(";") || scriptAction.endsWith("}"))) {
-			scriptAction += ";";
-		}
-		return scriptAction;
-	}
-
-	private String getScript() {
-		StringBuilder script = new StringBuilder();
-
-		// script += "var execAction = function(actionMap, actionName, param) {
-		// com.jsre.engine.impl.ActionExecutor.exec(actionMap, actionName);
-		// actionMap.get(actionName).execute(); };";
-
-		script.append("var executeScript = function(inputJson, registeredActions) { \n");
-
-		script.append("var input; try { input = JSON.parse(inputJson); } catch (e) { return inputJson; }");
-
-		script.append("var document = ").append(initialJsonDoc).append(";\n");
-
-		script.append("function __getJsonDoc() { return JSON.stringify(document); }\n");
-
-		@SuppressWarnings("unchecked")
-		List<String> preExecution = configuration.getPreExecution();
-		if (preExecution != null) {
-			for (String action : preExecution) {
-				script.append(appendSemicolonIfMissing(action)).append("\n");
-			}
-		}
-
-		@SuppressWarnings("unchecked")
-		List<? extends Rule> rules = configuration.getRules();
-
-		for (Rule r : rules) {
-			String expression = r.getExpression();
-			if (Strings.isNullOrEmpty(expression)) expression = "true";
-
-			script.append("if (").append(expression).append(") { \n");
-			List<String> scriptActions = r.getScriptActions();
-			if (scriptActions != null) {
-				for (String action : scriptActions) {
-					if (action == null) {
-						throw new InvalidConfigurationException(
-								"Encountered an empty script action at rule '" + r.getExpression() + "'. Put a comma behind the last action?");
-					}
-					script.append("  ").append(appendSemicolonIfMissing(action)).append("\n");
-				}
-			}
-			List<String> executionActions = r.getExecutionActions();
-			if (executionActions != null) {
-				for (String action : executionActions) {
-					String callExecAction = getActionScriptCall(r, action) + ";\n";
-					script.append(callExecAction);
-				}
-			}
-			script.append("}\n");
-		}
-		@SuppressWarnings("unchecked")
-		List<String> postExecution = configuration.getPostExecution();
-		if (postExecution != null) {
-			for (String action : postExecution) {
-				script.append(appendSemicolonIfMissing(action)).append("\n");
-			}
-		}
-
-		script.append("return __getJsonDoc();\n}\n");
-		return script.toString();
-	}
-
-	private String getActionScriptCall(Rule r, String action) {
-		if (action == null) {
-			throw new InvalidConfigurationException(
-					"Encountered an empty execution action at rule '" + r.getExpression() + "'. Put a comma behind the last action?");
-		}
-		String actionKey = action;
-		String param = null;
-		int pos = actionKey.indexOf('(');
-		if (pos != -1) {
-			actionKey = actionKey.substring(0, pos);
-			int pos1 = action.indexOf("'", pos);
-			if (pos1 != -1) {
-				pos1++;
-				int pos2 = action.indexOf("'", pos1);
-				param = action.substring(pos1, pos2);
-			}
-		}
-
-		if (!registeredActions.containsKey(actionKey)) {
-			throw new InvalidConfigurationException("Encountered an unregistered execution action '" + actionKey + "' at rule '" + r.getExpression() + "'");
-		}
-
-		String accessScript = "registeredActions.get('" + actionKey + "')";
-
-		Action execAction = registeredActions.get(actionKey);
-		if (execAction instanceof ParameterizedAction) {
-			if (param == null) {
-				throw new InvalidConfigurationException("Encountered an the execution action '" + actionKey + "' at rule '" + r.getExpression()
-						+ "', which is of type ParameterizedAction, but no parameter was passed.");
-			}
-			// TODO: Just strings work right now, fix this?!
-			return accessScript + ".execute('" + param + "')";
-		}
-		else if (execAction instanceof SimpleAction) {
-			return accessScript + ".execute()";
-		}
-		else {
-			throw new InvalidConfigurationException("Encountered an unknown type of action...");
-		}
-	}
-
 	public CompiledScript getCompiledScript() throws ScriptException {
 		if (compiledScript == null) {
-			compiledScript = engine.getCompiledScript(getScript());
+			String script;
+			if (ScriptBuilderType.MULTIOUTPUT.equals(configuration.getScriptBuilderType())) {
+				script = MultioutputScriptBuilder.getScript(configuration, registeredActions);
+			} else {
+				script = BasicScriptBuilder.getScript(configuration, registeredActions);
+			}
+
+			compiledScript = engine.getCompiledScript(script);
 		}
 		return compiledScript;
 	}
@@ -467,11 +363,6 @@ public abstract class AbstractRuleEngine implements RuleEngine {
 
 	protected JsonConverterProvider getConverterProvider() {
 		return converterProdiver;
-	}
-
-	private void afterConfigLoad() {
-		initialJsonDoc = this.configuration.getJsonDocument();
-		jsonDoc = initialJsonDoc;
 	}
 
 	@Override
@@ -611,7 +502,7 @@ public abstract class AbstractRuleEngine implements RuleEngine {
 	}
 
 	protected void resetDocument() {
-		jsonDoc = initialJsonDoc;
+		jsonDoc = this.configuration.getDocument();
 	}
 
 }

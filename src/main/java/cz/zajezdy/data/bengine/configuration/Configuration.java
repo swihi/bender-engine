@@ -1,15 +1,15 @@
 package cz.zajezdy.data.bengine.configuration;
 
+import cz.zajezdy.data.bengine.engine.ScriptBuilderType;
+
 import java.util.List;
 
 
-public interface Configuration<TDoc extends Document> {
+public interface Configuration {
 
 	String getVersion();
 
 	List<? extends InputValidation> getInputValidations();
-
-	TDoc getDocument();
 
 	List<? extends Rule> getRules();
 
@@ -17,15 +17,15 @@ public interface Configuration<TDoc extends Document> {
 
 	List<String> getPreExecution();
 
-	/**
-	 * Get JSON version of TDoc getDocument
-	 */
-	String getJsonDocument();
+	ScriptBuilderType getScriptBuilderType();
 
 	/**
-	 * Set JSON version of TDoc document
-	 * It is necessary to set jsonDocument just after new Configuration is created, because it is used when creating
-	 * script for eval
+	 * This is initial version of the output document.
+	 *
+	 * Output document is a data structure which will be returned from rule. Rule creators have this output document
+	 * available as 'document' variable and they will modify it and after all rules run it will be returned back.
+	 * @return JSON variation of the initial version of the output document
 	 */
-	void setJsonDocument(String jsonDoc);
+	String getDocument();
+
 }

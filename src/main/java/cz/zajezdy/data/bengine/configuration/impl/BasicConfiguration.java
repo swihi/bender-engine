@@ -1,24 +1,35 @@
 package cz.zajezdy.data.bengine.configuration.impl;
 
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import cz.zajezdy.data.bengine.configuration.Configuration;
-import cz.zajezdy.data.bengine.configuration.Document;
 import cz.zajezdy.data.bengine.configuration.InputValidation;
 import cz.zajezdy.data.bengine.configuration.Rule;
+import cz.zajezdy.data.bengine.configuration.converter.impl.JsonHelper;
+import cz.zajezdy.data.bengine.engine.ScriptBuilderType;
 
-
-public class BasicConfiguration<TDoc extends Document> implements Configuration<TDoc> {
+/**
+ * This implementation of {@link Configuration the Configuration interface} is created using JSON deserialization.
+ *
+ * Example of usage:
+ * <pre><code>
+ * final TypedConverterProvider<TestDocument> converterProvider = new TypedConverterProvider<>();
+ * final JsonConverter<BasicConfiguration> converter = converterProvider.getConfigurationJsonConverter();
+ * BasicConfiguration configuration = converter.fromJson(json);
+ * </code></pre>
+ */
+public class BasicConfiguration implements Configuration {
 
 	private String version;
-	private TDoc document;
+	private Map<String, Object> document;
 	private CopyOnWriteArrayList<BasicInputValidation> inputValidation;
 	private CopyOnWriteArrayList<BasicRule> rules;
 	private CopyOnWriteArrayList<String> postExecution;
 	private CopyOnWriteArrayList<String> preExecution;
+	private ScriptBuilderType scriptBuilderType;
 	private boolean rulesSorted = false;
 
 	private String __jsonDocument;
@@ -29,10 +40,6 @@ public class BasicConfiguration<TDoc extends Document> implements Configuration<
 
 	public List<? extends InputValidation> getInputValidations() {
 		return inputValidation;
-	}
-
-	public TDoc getDocument() {
-		return document;
 	}
 
 	@Override
@@ -63,11 +70,18 @@ public class BasicConfiguration<TDoc extends Document> implements Configuration<
 	}
 
 	@Override
-	public String getJsonDocument() {
-		return __jsonDocument;
+	public ScriptBuilderType getScriptBuilderType() {
+		return scriptBuilderType;
 	}
 
 	@Override
+	public String getDocument() {
+		if (__jsonDocument == null) {
+			 __jsonDocument = JsonHelper.toJson(document);
+		}
+		return __jsonDocument;
+	}
+
 	public void setJsonDocument(String jsonDocument) {
 		__jsonDocument = jsonDocument;
 	}

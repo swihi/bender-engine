@@ -28,8 +28,8 @@ public abstract class TypedRuleEngineProvider<TDoc extends Document> implements 
     }
 
     @Override
-    public Configuration<TDoc> deserialize(String json) {
-        final JsonConverter<BasicConfiguration<TDoc>> converter = converterProvider.getConfigurationJsonConverter();
+    public Configuration deserialize(String json) {
+        final JsonConverter<BasicConfiguration> converter = converterProvider.getConfigurationJsonConverter();
         return converter.fromJson(json);
     }
 
