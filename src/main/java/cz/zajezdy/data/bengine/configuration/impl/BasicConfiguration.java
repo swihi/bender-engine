@@ -9,7 +9,7 @@ import cz.zajezdy.data.bengine.configuration.Configuration;
 import cz.zajezdy.data.bengine.configuration.InputValidation;
 import cz.zajezdy.data.bengine.configuration.Rule;
 import cz.zajezdy.data.bengine.configuration.converter.impl.JsonHelper;
-import cz.zajezdy.data.bengine.engine.ScriptBuilderType;
+import cz.zajezdy.data.bengine.engine.scriptbuilder.ScriptBuilderType;
 
 /**
  * This implementation of {@link Configuration the Configuration interface} is created using JSON deserialization.

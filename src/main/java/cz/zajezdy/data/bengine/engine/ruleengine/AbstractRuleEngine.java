@@ -1,4 +1,4 @@
-package cz.zajezdy.data.bengine.engine.impl;
+package cz.zajezdy.data.bengine.engine.ruleengine;
 
 import java.util.HashMap;
 import java.util.List;
@@ -7,19 +7,17 @@ import java.util.Map;
 import javax.script.CompiledScript;
 import javax.script.ScriptException;
 
-import com.google.common.base.Strings;
-import cz.zajezdy.data.bengine.engine.ScriptBuilderType;
+import cz.zajezdy.data.bengine.engine.scriptbuilder.BasicScriptBuilder;
+import cz.zajezdy.data.bengine.engine.scriptbuilder.MultioutputScriptBuilder;
+import cz.zajezdy.data.bengine.engine.scriptbuilder.ScriptBuilderType;
 import org.apache.commons.lang3.StringUtils;
 
 import com.google.gson.Gson;
 
 import cz.zajezdy.data.bengine.RuleEngine;
 import cz.zajezdy.data.bengine.action.Action;
-import cz.zajezdy.data.bengine.action.ParameterizedAction;
-import cz.zajezdy.data.bengine.action.SimpleAction;
 import cz.zajezdy.data.bengine.configuration.Configuration;
 import cz.zajezdy.data.bengine.configuration.InputValidation;
-import cz.zajezdy.data.bengine.configuration.Rule;
 import cz.zajezdy.data.bengine.configuration.converter.JsonConverter;
 import cz.zajezdy.data.bengine.configuration.converter.JsonConverterProvider;
 import cz.zajezdy.data.bengine.engine.internal.scriptengine.JavaScriptEngine;

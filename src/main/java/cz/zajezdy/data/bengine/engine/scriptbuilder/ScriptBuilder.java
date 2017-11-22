@@ -1,4 +1,4 @@
-package cz.zajezdy.data.bengine.engine;
+package cz.zajezdy.data.bengine.engine.scriptbuilder;
 
 import cz.zajezdy.data.bengine.action.Action;
 import cz.zajezdy.data.bengine.configuration.Configuration;

@@ -4,9 +4,9 @@ import javax.script.ScriptEngine;
 import javax.script.ScriptEngineFactory;
 import javax.script.ScriptEngineManager;
 
-import cz.zajezdy.data.bengine.engine.impl.SecurityClassFilter;
 import cz.zajezdy.data.bengine.engine.internal.scriptengine.JavaScriptEngine;
 import cz.zajezdy.data.bengine.engine.internal.scriptengine.JavaScriptEngineFactory;
+import cz.zajezdy.data.bengine.engine.ruleengine.SecurityClassFilter;
 import cz.zajezdy.data.bengine.monitoring.PerformanceMarkerMgr;
 
 

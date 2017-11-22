@@ -1,11 +1,10 @@
-package cz.zajezdy.data.bengine.engine.impl;
+package cz.zajezdy.data.bengine.engine.scriptbuilder;
 
 import com.google.common.base.Strings;
 import cz.zajezdy.data.bengine.action.Action;
 import cz.zajezdy.data.bengine.action.ParameterizedAction;
 import cz.zajezdy.data.bengine.action.SimpleAction;
 import cz.zajezdy.data.bengine.configuration.Rule;
-import cz.zajezdy.data.bengine.engine.ScriptBuilder;
 import cz.zajezdy.data.bengine.exception.InvalidConfigurationException;
 import org.apache.commons.lang3.StringUtils;
 
