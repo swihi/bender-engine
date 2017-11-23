@@ -1,11 +1,11 @@
-# Java Script Rule Engine (JSRE)
+# Bender Engine (a successor of JSRE)
 
-JSRE is a simple rule engine for java. The focus is the ease of use to create applications 
+Bender Engine is a simple rule engine for java. The focus is the ease of use to create applications 
 that need to execute simple rules, which shall be editable by business stakeholders.
 
-JSRE offers you to use a JSON file to describe input, applied rules and output.
+Bender Engine offers you to use a JSON file to describe input, applied rules and output.
 
-A typical case to use JSRE would be, that you have some business rules, e.g. for configurators
+A typical case to use Bender Engine would be, that you have some business rules, e.g. for configurators
 or software assisten applications, that shall be configured by business stake holders
 and you would like to avoid the complexity of Drools or other business rule management systems.
 
