@@ -7,6 +7,7 @@ import java.util.Map;
 
 import javax.script.ScriptException;
 
+import org.hamcrest.Matchers;
 import org.junit.Test;
 
 import com.google.gson.Gson;
@@ -144,6 +145,34 @@ public class RuleEngineTest {
 		Map<String, Object> input = InputHelper.getTestDocumentInput();
 		ExecutionHelper.execEngineWithTestDocument("testconfig.json", input);
 		assertTrue(logActionExecuted);
+	}
+
+	@Test
+	public void testCodeError() throws Exception {
+		Map<String, Object> input = InputHelper.getTestDocumentInput();
+		try {
+			ExecutionHelper.execEngineWithTestDocument("errorInCode.json", input);
+		} catch (ScriptException e) {
+			assertThat(e.getMessage(), Matchers.containsString(" in Wrong script"));
+			assertThat(e.getLineNumber(), Matchers.is(2));
+			return;
+		}
+
+		fail("ScriptException was not thrown");
+	}
+
+	@Test
+	public void testConditionError() throws Exception {
+		Map<String, Object> input = InputHelper.getTestDocumentInput();
+		try {
+			ExecutionHelper.execEngineWithoutDoc("errorInCondition.json", input);
+		} catch (ScriptException e) {
+			assertThat(e.getMessage(), Matchers.containsString(" in Condition of Wrong script"));
+			assertThat(e.getLineNumber(), Matchers.is(2));
+			return;
+		}
+
+		fail("ScriptException was not thrown");
 	}
 
 //  To get rid of locking of RuleEngines in RuleEngineCache input paramaters are passed directly to executeMethod,
