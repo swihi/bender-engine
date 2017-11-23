@@ -45,6 +45,7 @@ test.json:
 	"document" : {
 		"greeting" : "Hello, who ever you are. Nice to meet you!"
 	},
+	"scriptBuilderType" : "BASIC",
 	"rules" : [
 		{
 			"expression" : "input.firstName == 'John'",
@@ -66,6 +67,25 @@ test.json:
 }
 ```
 
+* **inputValidation**
+    * is an array of input attributes
+    * you have to define all attributes, which can be sent to rules (especially you have to define its type)
+    * these attributes can be accessed in your rule scripts as fields of variable `input`
+    * `type` can be one of:
+        * String
+        * Integer
+        * Double
+        * Boolean
+        * Fully qualified class name for other objects - this class **must** have public <init>(String) constructor
+* **document** 
+    * pre-initialized output document (that means you can always add another attributes to `document` in rule script)
+* **scriptBuilderType**
+    * you can specify which script engine you would like to use (see. chapter Script engine types)
+    * if this configuration option is missing, by default is used Basic script engine
+* **rules**
+    * *expression* - is a condition which is evaluated before this rule. If it is true, all `scriptActions` are executed otherwise not. If you want to omit this test rule, simply place `true` here 
+    * *priority* - rules (including conditions) are executed in priority order from the lowest to the biggest 
+   
 ## Example output
 The output of the above example would look like:
 ```
@@ -86,6 +106,23 @@ If no name is passed in as parameter, the answer will be:
 }
 ```
 
+## Script engine types
+Bender engine offers 2 types of script engines: Basic and Multioutput.
+
+#### Basic script engine
+This is a default script engine. It accepts one input object (called `input`) and one output object (called `document`).
+Attributes of input obect are defined in `inputValidation` section of configuration and output document is 
+*pre-initialized* in `document` section of configuration (that means you can always add another attributes to 
+`document` in rule script). Directly output `document` is returned in getJsonDocument() method.
+
+#### Multioutput script engine
+In some cases you may need to get multiple output document from your rule. This rule engine also has one input
+object in variable `input` and one pre-initialized `document` as the Basic one, but here you can use method addToOutput()
+in your rule script. Each time you use this method a copy of `document` object is added to the output list.
+If you never call addToOutput() method in your rule script, it will be call once for you at the end.
+
+When you call re.getJsonDocument() it will be returned a list of `documents` converted to JSON format. 
+  
 
 ## Usage of the rule engine cache
 
