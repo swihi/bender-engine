@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 
 public class BasicScriptBuilder extends AbstractScriptBuilder {
-    public static String getScript(Configuration configuration, HashMap<String, Action> registeredActions) {
+    public static ScriptDescriptorDto getScript(Configuration configuration, HashMap<String, Action> registeredActions) {
         StringBuilder script = new StringBuilder();
 
         // script += "var execAction = function(actionMap, actionName, param) {
@@ -24,16 +24,20 @@ public class BasicScriptBuilder extends AbstractScriptBuilder {
         @SuppressWarnings("unchecked")
         List<String> preExecution = configuration.getPreExecution();
         script.append(getPreExecutionScriptPart(preExecution));
+        int rows = countLines(script.toString());
 
         @SuppressWarnings("unchecked")
         List<? extends Rule> rules = configuration.getRules();
-        script.append(getRulesScriptPart(rules, registeredActions));
+        final ScriptDescriptorDto rulesScriptPart = getRulesScriptPart(rules, registeredActions);
+        script.append(rulesScriptPart.getScript());
 
         @SuppressWarnings("unchecked")
         List<String> postExecution = configuration.getPostExecution();
         script.append(getPostExecutionScriptPart(postExecution));
 
         script.append("return JSON.stringify(document);\n}\n");
-        return script.toString();
+        return new ScriptDescriptorDto(
+                moveRows(rulesScriptPart.getRules(), rows),
+                script.toString());
     }
 }

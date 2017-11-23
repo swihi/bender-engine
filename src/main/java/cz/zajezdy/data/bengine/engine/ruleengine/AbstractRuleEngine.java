@@ -1,15 +1,14 @@
 package cz.zajezdy.data.bengine.engine.ruleengine;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import javax.script.CompiledScript;
 import javax.script.ScriptException;
 
-import cz.zajezdy.data.bengine.engine.scriptbuilder.BasicScriptBuilder;
-import cz.zajezdy.data.bengine.engine.scriptbuilder.MultioutputScriptBuilder;
-import cz.zajezdy.data.bengine.engine.scriptbuilder.ScriptBuilderType;
+import cz.zajezdy.data.bengine.engine.scriptbuilder.*;
 import org.apache.commons.lang3.StringUtils;
 
 import com.google.gson.Gson;
@@ -41,6 +40,7 @@ public abstract class AbstractRuleEngine implements RuleEngine {
 	private boolean enableSecurity = false;
 
 	private CompiledScript compiledScript = null;
+	private ScriptDescriptorDto scriptDescriptor;
 
 	// @SuppressWarnings("unused")
 	// private Class<? extends Document> documentType;
@@ -284,14 +284,13 @@ public abstract class AbstractRuleEngine implements RuleEngine {
 
 	public CompiledScript getCompiledScript() throws ScriptException {
 		if (compiledScript == null) {
-			String script;
 			if (ScriptBuilderType.MULTIOUTPUT.equals(configuration.getScriptBuilderType())) {
-				script = MultioutputScriptBuilder.getScript(configuration, registeredActions);
+				scriptDescriptor = MultioutputScriptBuilder.getScript(configuration, registeredActions);
 			} else {
-				script = BasicScriptBuilder.getScript(configuration, registeredActions);
+				scriptDescriptor = BasicScriptBuilder.getScript(configuration, registeredActions);
 			}
 
-			compiledScript = engine.getCompiledScript(script);
+			compiledScript = engine.getCompiledScript(scriptDescriptor.getScript());
 		}
 		return compiledScript;
 	}
@@ -309,17 +308,29 @@ public abstract class AbstractRuleEngine implements RuleEngine {
 
 		validateInputMap(input);
 
-		// compiles the script first time
-		getCompiledScript();
-
 		String jsonInput = new Gson().toJson(input);
 
 		try {
+			// compiles the script first time
+			getCompiledScript();
+
 			Object object = engine.invokeFunction("executeScript", jsonInput, registeredActions);
 			jsonDoc = (String) object;
 		}
 		catch (NoSuchMethodException e) {
 			e.printStackTrace();
+		}
+		catch (ScriptException e) {
+			if ((e.getFileName() == null || e.getLineNumber() < 0)) throw e;
+
+			final RuleDescriptorDto affectedRule = getAffectedRule(e.getLineNumber());
+
+			final String message = e.getMessage();
+			throw new ScriptException(
+					message.substring(0, message.indexOf(" in <eval>")).substring(message.indexOf(' ') + 1),
+					(e.getLineNumber() < affectedRule.getCodeStartAt() ? "Condition of " : "" ) + affectedRule.getScriptName(),
+					e.getLineNumber() - getScriptStartAt(e, affectedRule) + 1,
+					e.getColumnNumber());
 		}
 
 		setPerformanceMarker("executeRules finished");
@@ -501,6 +512,21 @@ public abstract class AbstractRuleEngine implements RuleEngine {
 
 	protected void resetDocument() {
 		jsonDoc = this.configuration.getDocument();
+	}
+
+	private RuleDescriptorDto getAffectedRule(int affectedRow) {
+		boolean shouldIterate = true;
+		final Iterator<RuleDescriptorDto> it = scriptDescriptor.getRules().descendingIterator();
+		RuleDescriptorDto ruleDescriptor = null;
+		while (shouldIterate) {
+            ruleDescriptor = it.next();
+            shouldIterate = it.hasNext() && ruleDescriptor.getConditionStartAt() > affectedRow;
+        }
+		return ruleDescriptor;
+	}
+
+	private int getScriptStartAt(ScriptException e, RuleDescriptorDto affectedRule) {
+		return e.getLineNumber() < affectedRule.getCodeStartAt() ? affectedRule.getConditionStartAt() : affectedRule.getCodeStartAt();
 	}
 
 }

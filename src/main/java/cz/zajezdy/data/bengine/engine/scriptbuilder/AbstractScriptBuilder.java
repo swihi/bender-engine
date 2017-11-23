@@ -9,7 +9,10 @@ import cz.zajezdy.data.bengine.exception.InvalidConfigurationException;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public abstract class AbstractScriptBuilder implements ScriptBuilder {
     protected static String getPreExecutionScriptPart(final List<String> preExecution) {
@@ -34,15 +37,23 @@ public abstract class AbstractScriptBuilder implements ScriptBuilder {
         return script.toString();
     }
 
-    protected static String getRulesScriptPart(List<? extends Rule> rules, HashMap<String, Action> registeredActions) {
-        if (rules == null || rules.size() == 0) return "";
+    protected static ScriptDescriptorDto getRulesScriptPart(List<? extends Rule> rules, HashMap<String, Action> registeredActions) {
+        if (rules == null || rules.size() == 0) return new ScriptDescriptorDto();
         StringBuilder script = new StringBuilder();
+        int rowPointer = 2;
+        LinkedList<RuleDescriptorDto> ruleDescriptors = new LinkedList<>();
 
         for (Rule rule : rules) {
-           script.append(getRuleScript(rule, registeredActions));
+            final String ruleScript = getRuleScript(rule, registeredActions);
+            if (StringUtils.isEmpty(ruleScript)) continue;
+
+            ruleDescriptors.add(
+                    new RuleDescriptorDto(rule.getDescription(), rowPointer, rowPointer + countLines(rule.getExpression()) + 1));
+            rowPointer += countLines(ruleScript) - 1;
+            script.append(ruleScript);
         }
 
-        return script.toString();
+        return new ScriptDescriptorDto(ruleDescriptors, script.toString());
     }
 
     protected static String getRuleScript(Rule r, HashMap<String, Action> registeredActions) {
@@ -52,7 +63,7 @@ public abstract class AbstractScriptBuilder implements ScriptBuilder {
         String expression = r.getExpression();
         if (Strings.isNullOrEmpty(expression)) expression = "true";
 
-        script.append("if (").append(expression).append(") { \n");
+        script.append("if (\n").append(expression).append("\n) { \n");
         List<String> scriptActions = r.getScriptActions();
         if (scriptActions != null) {
             for (String action : scriptActions) {
@@ -121,5 +132,25 @@ public abstract class AbstractScriptBuilder implements ScriptBuilder {
             scriptAction += ";";
         }
         return scriptAction;
+    }
+
+    protected static int countLines(String input) {
+        Matcher m = Pattern.compile("\r\n|\r|\n").matcher(input);
+        int lines = 1;
+        while (m.find()) { lines ++; }
+        return lines;
+    }
+
+    /**
+     * Go through all rule descriptors and move (means to 'add') all row numbers of rowsCount
+     * @param rules A list of rule descriptors to be moved
+     * @param rowsCount For how many rows should be each rule descriptior moved
+     */
+    protected static LinkedList<RuleDescriptorDto> moveRows(LinkedList<RuleDescriptorDto> rules, int rowsCount) {
+        for (RuleDescriptorDto rule: rules) {
+            rule.setConditionStartAt(rule.getConditionStartAt() + rowsCount - 1);
+            rule.setCodeStartAt(rule.getCodeStartAt() + rowsCount - 1);
+        }
+        return rules;
     }
 }

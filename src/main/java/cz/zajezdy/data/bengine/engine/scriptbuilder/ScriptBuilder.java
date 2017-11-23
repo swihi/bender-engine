@@ -18,8 +18,8 @@ public interface ScriptBuilder {
      * @param registeredActions A list of registered actions (methods implemented in Java code) which can be referenced (called) from rules
      * @return
      */
-    static String getScript(Configuration configuration, HashMap<String, Action> registeredActions) {
-        return "";
+    static ScriptDescriptorDto getScript(Configuration configuration, HashMap<String, Action> registeredActions) {
+        return new ScriptDescriptorDto();
     }
 
 }
