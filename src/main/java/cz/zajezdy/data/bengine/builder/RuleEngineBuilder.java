@@ -1,10 +1,7 @@
 package cz.zajezdy.data.bengine.builder;
 
-import java.lang.reflect.ParameterizedType;
 import java.util.HashMap;
 import java.util.Map;
-
-import org.apache.commons.lang3.reflect.TypeUtils;
 
 import cz.zajezdy.data.bengine.RuleEngine;
 import cz.zajezdy.data.bengine.TypedRuleEngine;
@@ -15,8 +12,8 @@ import cz.zajezdy.data.bengine.configuration.converter.JsonConverterProvider;
 import cz.zajezdy.data.bengine.configuration.converter.impl.JsonDocumentConverterProvider;
 import cz.zajezdy.data.bengine.configuration.converter.impl.TypedConverterProvider;
 import cz.zajezdy.data.bengine.configuration.impl.BasicConfiguration;
-import cz.zajezdy.data.bengine.engine.impl.TypedRuleEngineImpl;
-import cz.zajezdy.data.bengine.engine.impl.UntypedRuleEngineImpl;
+import cz.zajezdy.data.bengine.engine.ruleengine.TypedRuleEngineImpl;
+import cz.zajezdy.data.bengine.engine.ruleengine.UntypedRuleEngineImpl;
 
 
 public class RuleEngineBuilder {

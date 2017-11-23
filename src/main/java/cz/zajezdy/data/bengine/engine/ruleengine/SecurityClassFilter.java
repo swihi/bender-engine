@@ -1,4 +1,4 @@
-package cz.zajezdy.data.bengine.engine.impl;
+package cz.zajezdy.data.bengine.engine.ruleengine;
 
 import jdk.nashorn.api.scripting.ClassFilter;
 

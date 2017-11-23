@@ -1,6 +1,6 @@
 package cz.zajezdy.data.bengine.configuration;
 
-import cz.zajezdy.data.bengine.engine.ScriptBuilderType;
+import cz.zajezdy.data.bengine.engine.scriptbuilder.ScriptBuilderType;
 
 import java.util.List;
 

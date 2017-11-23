@@ -1,4 +1,4 @@
-package cz.zajezdy.data.bengine.engine.impl;
+package cz.zajezdy.data.bengine.engine.scriptbuilder;
 
 import cz.zajezdy.data.bengine.action.Action;
 import cz.zajezdy.data.bengine.configuration.Configuration;
@@ -37,7 +37,7 @@ public class MultioutputScriptBuilder extends AbstractScriptBuilder {
     private static String ADD_TO_OUTPUT_FUNCTION =
             "var addToOutput = function() { output.documentList[output.documentList.length] = clone(document); };\n\n";
 
-    public static String getScript(Configuration configuration, HashMap<String, Action> registeredActions) {
+    public static ScriptDescriptorDto getScript(Configuration configuration, HashMap<String, Action> registeredActions) {
         StringBuilder script = new StringBuilder();
 
         script.append(CLONE_FUNCTION);
@@ -51,10 +51,12 @@ public class MultioutputScriptBuilder extends AbstractScriptBuilder {
         @SuppressWarnings("unchecked")
         List<String> preExecution = configuration.getPreExecution();
         script.append(getPreExecutionScriptPart(preExecution));
+        int rows = countLines(script.toString());
 
         @SuppressWarnings("unchecked")
         List<? extends Rule> rules = configuration.getRules();
-        script.append(getRulesScriptPart(rules, registeredActions));
+        final ScriptDescriptorDto rulesScriptPart = getRulesScriptPart(rules, registeredActions);
+        script.append(rulesScriptPart.getScript());
 
         @SuppressWarnings("unchecked")
         List<String> postExecution = configuration.getPostExecution();
@@ -62,6 +64,8 @@ public class MultioutputScriptBuilder extends AbstractScriptBuilder {
 
         script.append("if (output.documentList.length === 0) { addToOutput(); }\n");
         script.append("return JSON.stringify(output);\n}\n");
-        return script.toString();
+        return new ScriptDescriptorDto(
+                moveRows(rulesScriptPart.getRules(), rows),
+                script.toString());
     }
 }

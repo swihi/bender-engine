@@ -1,4 +1,4 @@
-package cz.zajezdy.data.bengine.engine.impl;
+package cz.zajezdy.data.bengine.engine.ruleengine;
 
 import cz.zajezdy.data.bengine.RuleEngine;
 

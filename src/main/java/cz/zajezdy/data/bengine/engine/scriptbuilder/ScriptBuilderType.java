@@ -1,4 +1,4 @@
-package cz.zajezdy.data.bengine.engine;
+package cz.zajezdy.data.bengine.engine.scriptbuilder;
 
 public enum ScriptBuilderType {
     BASIC,

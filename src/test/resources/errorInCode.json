@@ -1,0 +1,61 @@
+{
+	"version" : "1.1",
+	
+	"inputValidation" : [
+		{
+			"name" : "textInput",
+			"type" : "String",
+			"mandatory" : true,
+			"expression" : "value.substr(0,4) == 'test'"
+		},
+		{
+			"name" : "inputNumber",
+			"type" : "Double",
+			"mandatory" : true
+		}
+	],
+	
+	"document" : {
+		"testText" : "",
+		"test" : false
+	},
+	
+	"rules" : [
+		{
+			"expression" : "true",
+			"description" : "Correct script",
+			"priority" : 1,
+			"scriptActions" : [
+				"document.testText = 'one'"
+			],
+			"executionActions" : [
+				"LogAction('Hello World')"
+			]
+		},
+		{
+			"expression" : "input.inputNumber > 999",
+			"description" : "Wrong script",
+			"priority" : 2,
+			"scriptActions" : [
+				"document.testText = 'one'",
+				"document.{textText = 'Typo in this row'",
+				"document.testText = 'three'"
+			]
+		},
+		{
+			"expression" : "true",
+			"description" : "Another correct script",
+			"priority" : 3,
+			"scriptActions" : [
+				"document.text = 'I am the last rule to be executed and love overwriting text, but because of the priority I do not do that'"
+			]
+		}
+	],
+
+	"preExecution" : [
+		"LogAction('Starting')"
+	],
+	"postExecution" : [
+		"document.testValue *= 2"
+	]
+}
