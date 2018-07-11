@@ -40,6 +40,6 @@ public class JavaScriptEngineImpl implements JavaScriptEngine {
 	@Override
 	public Object invokeFunction(String functionName, Object... arguments) throws NoSuchMethodException, ScriptException {
 		final Invocable invocable = (Invocable) engine;
-		return invocable.invokeFunction("executeScript", arguments);
+		return invocable.invokeFunction(functionName, arguments);
 	}
 }
