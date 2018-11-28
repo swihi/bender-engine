@@ -77,20 +77,4 @@
 			</plugin>
 	    </plugins>
     </build>
-
-	<scm>
-		<developerConnection>scm:git:https://github.com/zajezdy/bender-engine.git</developerConnection>
-		<tag>bender-engine-0.2.0</tag>
-	</scm>
-	<distributionManagement>
-		<repository>
-			<id>nexus-release</id>
-			<url>https://nexus.zajezdy.cz/repository/maven-releases/</url>
-		</repository>
-		<snapshotRepository>
-			<id>nexus-snapshots</id>
-			<url>https://nexus.zajezdy.cz/repository/maven-snapshots/</url>
-		</snapshotRepository>
-	</distributionManagement>
-
 </project>
