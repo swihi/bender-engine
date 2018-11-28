@@ -20,6 +20,7 @@ public class BasicScriptBuilder extends AbstractScriptBuilder {
                 "var input; try { input = JSON.parse(inputJson); } catch (e) { return inputJson; }\n");
 
         script.append("var document = ").append(configuration.getDocument()).append(";\n");
+        script.append("var inputDocument; try { inputDocument = JSON.parse(JSON.stringify(document)); } catch(e) { inputDocument = document; }\n");
 
         @SuppressWarnings("unchecked")
         List<String> preExecution = configuration.getPreExecution();

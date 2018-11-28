@@ -44,7 +44,8 @@ public class MultioutputScriptBuilder extends AbstractScriptBuilder {
 
         script.append("var executeScript = function(inputJson, registeredActions) { \n");
         script.append("var input; try { input = JSON.parse(inputJson); } catch (e) { return inputJson; }\n");
-        script.append("var document = ").append(configuration.getDocument()).append(";\n\n");
+        script.append("var document = ").append(configuration.getDocument()).append(";\n");
+        script.append("var inputDocument = clone(document);\n\n");
         script.append("var output = { 'documentList' : [] };\n");
         script.append(ADD_TO_OUTPUT_FUNCTION);
 
