@@ -77,4 +77,9 @@
 			</plugin>
 	    </plugins>
     </build>
+
+	<scm>
+		<developerConnection>scm:git:https://github.com/zajezdy/bender-engine.git</developerConnection>
+		<tag>bender-engine-0.2.0</tag>
+	</scm>
 </project>
